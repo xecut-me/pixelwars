@@ -39,14 +39,20 @@ setInterval(async () => {
     changed = false;
 
     await Deno.writeFile("pixels.bin", new Uint8Array(imageBuffer));
+    await Deno.writeFile(Date.now() + ".bin", new Uint8Array(imageBuffer));
 }, 1000);
 
 function clientMain(width, height) {
     let ws;
 
     const colorPicker = document.createElement("input"), canvas = document.createElement("canvas"), ctx = canvas.getContext("2d"),
-        activePointers = new Set(), colors = {}, commandBuffer = new ArrayBuffer(7), commandView = new DataView(commandBuffer),
-        scale = Math.floor(Math.min(((window?.visualViewport?.height || window.innerHeight) - 60) / height), Math.min((window?.visualViewport?.width || window.innerWidth) / width)),
+        activePointers = new Set(), colors = {}, commandBuffer = new ArrayBuffer(7), commandView = new DataView(commandBuffer);
+
+    const justdisplay = location.href.includes("justdisplay"),
+        wHeight = window?.visualViewport?.height || window.innerHeight,
+        wWidth = window?.visualViewport?.width || window.innerWidth,
+        wDiff = justdisplay ? 0 : 60,
+        scale = Math.floor(Math.min((wHeight - wDiff) / height), Math.min(wWidth / width)),
         subScale = scale - Math.floor(Math.max(2, scale * 2 / 25));
 
     document.body.style.margin = "0";
@@ -57,17 +63,12 @@ function clientMain(width, height) {
     colorPicker.style.height = "40px";
     colorPicker.style.display = "inline-block";
     colorPicker.style.margin = "10px";
-    document.body.appendChild(colorPicker);
-
     colorPicker.value = "#" + [0, 1, 2].map(() => Math.floor((1 + Math.random()) * 128).toString(16)).join("");
 
-    const span = document.createElement("span");
-    span.innerText = "Draw on me, go " + location.href;
-    span.style.fontSize = "60px";
-
-    document.body.appendChild(span);
-
-    document.body.appendChild(document.createElement("br"));
+    if (!justdisplay) {
+        document.body.appendChild(colorPicker);
+        document.body.appendChild(document.createElement("br"));
+    }
 
     canvas.width = scale * width;
     canvas.height = scale * height;
