@@ -108,7 +108,7 @@ function clientMain(width, height) {
     }
 
     function initWs() {
-        ws = new WebSocket(location.href);
+        ws = new WebSocket(location.href.replace(/^http/, "ws"));
 
         ws.onmessage = async ({ data }) => {
             const buffer = await data.arrayBuffer(), view = new DataView(buffer);
