@@ -12,6 +12,8 @@ services:
     volumes:
       - ../pixelwars-data:/data
     user: "1000:1000"
+    ports:
+      - 8080:8080
     security_opt:
       - no-new-privileges:true
     networks:
